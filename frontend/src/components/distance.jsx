@@ -1,13 +1,48 @@
 import React, {useRef, useState, useEffect, useCallback} from "react";
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
-import styled from 'styled-components'
+import styled, {css} from 'styled-components'
 import {API_URL} from "../constants";
 
 const Clear = styled.button`
-    margin: 0.25em; 
+    margin: 0.25em;
+    margin-top: 0.6em; 
     border: none; 
     background-color: red; 
     color: white;
+    border-radius: 1em;
+    height: 2em;
+    width: 2em;
+`
+
+const Calculate = styled.button`
+    margin: 0.25em; 
+    border: none; 
+    color: white;
+    height: 3em;
+    width: 10em;
+    font-family: sans-serif;
+    font-weight: 900;
+    font-size: 0.9em;
+    border-radius: 0.2em;
+    ${props =>
+    props.disabled
+      ? css`background: grey;`
+      : css`background: blue;`
+  };
+`
+
+const Input = styled.input`
+    height: 2em;
+    width: 15em;
+    margin: 0.25em;
+    padding: 0.25em;
+    color: #495057;
+    border-radius: 0.25em;
+    border: 1px solid #ced4da;
+    ::placeholder{
+        color: #6c757d;
+        opacity: 0.5;
+    } 
 `
 
 const Paragraph = styled.p`
@@ -75,20 +110,20 @@ const Distance = () => {
             .then(r => r.json())
             .then(r => {
                 if (r.status === 'OK') {
-                    currentInput.current.style.backgroundColor = 'white';
+                    currentInput.current.style.backgroundColor = 'AliceBlue';
                     let result = r.results.shift();
                     let position = result.geometry.location;
                     pointSetter(position);
                     map.panTo(position);
                 } else {
-                    currentInput.current.style.backgroundColor = 'coral';
+                    currentInput.current.style.backgroundColor = 'BlanchedAlmond';
                     pointSetter(null);
                 }
             })
             .catch((error) => {
                 pointSetter(null);
                 console.error(error);
-                currentInput.current.style.backgroundColor = 'coral';
+                currentInput.current.style.backgroundColor = 'BlanchedAlmond';
             });
     }
 
@@ -96,7 +131,7 @@ const Distance = () => {
         const point = {lat: position.lat(), lng: position.lng()};
         const pointSetter = getPointSetter();
         const addressSetter = getAddressSetter();
-        currentInput.current.style.backgroundColor = 'white';
+        currentInput.current.style.backgroundColor = 'AliceBlue';
         pointSetter(point);
         fetch(`${baseMapsApiUrl}latlng=${point.lat},${point.lng}`)
             .then(r => r.json())
@@ -130,14 +165,18 @@ const Distance = () => {
         <div style={{display: 'flex'}}>
             <div style={{flex: 1}}>
                 <div style={{display: 'flex'}}>
-                    <input
+                    <Input
                         className={'inputBeginning'}
                         type={'text'}
                         ref={beginningInput}
-                        style={{'margin': '0.25em'}}
                         value={beginningAddress}
                         placeholder={'Type address and press Enter'}
-                        onFocus={e => setCurrentInput(beginningInput)}
+                        onFocus={e => {
+                                destinationInput.current.style.backgroundColor = 'white';
+                                beginningInput.current.style.backgroundColor = 'AliceBlue';
+                                setCurrentInput(beginningInput);
+                            }
+                        }
                         onChange={e => setBeginningAddress(e.target.value)}
                         onKeyPress={e => {
                                 if (e.key === 'Enter') {
@@ -155,14 +194,18 @@ const Distance = () => {
                     }}>✖</Clear>
                 </div>
                 <div style={{display: 'flex'}}>
-                    <input
+                    <Input
                         className={'inputDestination'}
                         type={'text'}
                         ref={destinationInput}
-                        style={{'margin': '0.25em'}}
                         value={destinationAddress}
                         placeholder={'Type address and press Enter'}
-                        onFocus={e => setCurrentInput(destinationInput)}
+                        onFocus={e => {
+                                beginningInput.current.style.backgroundColor = 'white';
+                                destinationInput.current.style.backgroundColor = 'AliceBlue';
+                                setCurrentInput(destinationInput);
+                            }
+                        }
                         onChange={e => setDestinationAddress(e.target.value)}
                         onKeyPress={e => {
                                 if (e.key === 'Enter') {
@@ -179,12 +222,12 @@ const Distance = () => {
                             setDestinationPoint(null);
                         }}>✖</Clear>
                 </div>
-                <button className={'calculateButton'}
+                <Calculate className={'calculateButton'}
                         style={{'margin': '0.25em'}}
                         disabled={!(Boolean(beginningPoint) && Boolean(destinationPoint))}
                         onClick={calculate}>
                     Calculate
-                </button>
+                </Calculate>
                 {calculation && <div><Paragraph>ml: {calculation.ml}</Paragraph><Paragraph>km: {calculation.km}</Paragraph></div>}
                 {calculationError && <Paragraph style={{color: 'red'}}>{calculationError}</Paragraph>}
             </div>
