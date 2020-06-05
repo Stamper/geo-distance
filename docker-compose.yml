@@ -20,6 +20,7 @@ services:
     tty: true
     environment:
       - NODE_ENV=development
+      - REACT_APP_API_KEY=AIzaSyDLXmcgaErAaz8FKxWSFIdYVZEL0N3xdDM
     depends_on:
       - backend
     command: ['npm', 'start']

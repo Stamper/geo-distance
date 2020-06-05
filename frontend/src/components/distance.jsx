@@ -10,8 +10,13 @@ const Clear = styled.button`
     color: white;
 `
 
+const Paragraph = styled.p`
+    margin: 0.25em; 
+    font-family: sans-serif;
+`
+
 const Distance = () => {
-    const apiKey = 'AIzaSyDLXmcgaErAaz8FKxWSFIdYVZEL0N3xdDM';
+    const apiKey = process.env.REACT_APP_API_KEY;
     const baseMapsApiUrl = `https://maps.googleapis.com/maps/api/geocode/json?key=${apiKey}&`
 
     const [map, setMap] = useState(null);
@@ -180,8 +185,8 @@ const Distance = () => {
                         onClick={calculate}>
                     Calculate
                 </button>
-                {calculation && <div><p>ml: {calculation.ml}</p><p>km: {calculation.km}</p></div>}
-                {calculationError && <p style={{color: 'red'}}>{calculationError}</p>}
+                {calculation && <div><Paragraph>ml: {calculation.ml}</Paragraph><Paragraph>km: {calculation.km}</Paragraph></div>}
+                {calculationError && <Paragraph style={{color: 'red'}}>{calculationError}</Paragraph>}
             </div>
             <LoadScript googleMapsApiKey={apiKey}>
                 <GoogleMap
