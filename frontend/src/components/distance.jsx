@@ -14,7 +14,7 @@ const Clear = styled.button`
     width: 2em;
 `
 
-const Calculate = styled.button`
+const CustomButton = styled.button`
     margin: 0.25em; 
     border: none; 
     color: white;
@@ -161,6 +161,22 @@ const Distance = () => {
             });
     }
 
+    const submitDistance = () => {
+        const url = `${API_URL}/distance/`;
+        const payload = {
+            start: beginningAddress,
+            end: destinationAddress,
+            miles: calculation.ml,
+            kilometers: calculation.km
+        };
+        fetch(url, {method: 'post', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)})
+            .then(r => { alert('Submit succeded') })
+            .catch((error) => {
+                alert('Submit failed')
+                console.error(error);
+            }).finally(() => setCalculation(null));
+    }
+
     return (
         <div style={{display: 'flex'}}>
             <div style={{flex: 1}}>
@@ -222,13 +238,19 @@ const Distance = () => {
                             setDestinationPoint(null);
                         }}>✖</Clear>
                 </div>
-                <Calculate className={'calculateButton'}
-                        style={{'margin': '0.25em'}}
+                <CustomButton className={'calculateButton'}
                         disabled={!(Boolean(beginningPoint) && Boolean(destinationPoint))}
                         onClick={calculate}>
                     Calculate
-                </Calculate>
-                {calculation && <div><Paragraph>ml: {calculation.ml}</Paragraph><Paragraph>km: {calculation.km}</Paragraph></div>}
+                </CustomButton>
+                {calculation && <div>
+                    <Paragraph>ml: {calculation.ml}</Paragraph>
+                    <Paragraph>km: {calculation.km}</Paragraph>
+                    <CustomButton className={'calculateButton'}
+                        onClick={submitDistance}>
+                    Submit
+                </CustomButton>
+                </div>}
                 {calculationError && <Paragraph style={{color: 'red'}}>{calculationError}</Paragraph>}
             </div>
             <LoadScript googleMapsApiKey={apiKey}>

@@ -1,6 +1,6 @@
 from unittest.mock import patch, Mock
 
-from django.test import SimpleTestCase, RequestFactory, Client
+from django.test import SimpleTestCase, TestCase, RequestFactory, Client
 
 from .utils import read_query_params
 
@@ -49,3 +49,20 @@ class DistanceCalculationTest(SimpleTestCase):
         self.assertEqual('ok', responce['status'])
         self.assertEqual(1, responce['data']['ml'])
         self.assertEqual(2, responce['data']['km'])
+
+
+class SaveDistanceTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_invalid_schema(self):
+        responce = self.client.post('/distance/', content_type='application/json', data = {'random': 'value'})
+
+        self.assertEqual(responce.status_code, 400)
+
+
+    def test_valid_schema(self):
+        responce = self.client.post('/distance/', content_type='application/json',
+                                    data = {'start': 'kyiv', 'end': 'horenychi', 'kilometers': 1, 'miles': 2})
+
+        self.assertEqual(responce.status_code, 201)
