@@ -16,7 +16,7 @@ It allows type text adresses as well. Note that focused (where cursor is) input 
 
 ## API
 ### Tests
-`$ python api/manage.py test`
+`$ python backend/manage.py test`
 
 ## Frontend
 ### Tests
