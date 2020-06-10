@@ -1,43 +1,26 @@
 import json
 from geopy.distance import geodesic
-from .models import Distance
-from .utils import read_query_params
-from .serializers import DistanceSchema, ValidationError
 
 from django.http import JsonResponse, HttpResponse
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from .models import Distance
+from .serializers import GeoPointSerializer, DistanceSerializer
 
 
+@api_view(['GET', 'POST'])
 def calculate(request):
     if request.method == 'GET':
-        error = False
-        params_list = ('lat1', 'lng1', 'lat2', 'lng2')
-        params = read_query_params(request, *params_list)
-        if len(params) != len(params_list):
-            error = True
-
-        try:
-            distance = geodesic((params[0], params[1]), (params[2], params[3]))
-
-        except (ValueError, IndexError):
-            error = True
-
-        if error:
-            resp = JsonResponse({'status': 'error'})
-            resp['Access-Control-Allow-Origin'] = '*'
-            return resp
-
-        else:
-            resp = JsonResponse({'status': 'ok', 'data': {'km': round(distance.kilometers, 2), 'ml': round(distance.miles, 2)}})
-            resp['Access-Control-Allow-Origin'] = '*'
-            return resp
+        serializer = GeoPointSerializer(data=request.GET)
+        serializer.is_valid(raise_exception=True)
+        points = serializer.validated_data
+        distance = geodesic((points['lat1'], points['lng1']), (points['lat2'], points['lng2']))
+        return Response({'status': 'ok', 'data': {'km': round(distance.kilometers, 2), 'ml': round(distance.miles, 2)}})
 
     elif request.method == 'POST':
-        payload = json.loads(request.body.decode('utf-8'))
-        try:
-            distance_data = DistanceSchema().load(payload)
-            Distance.objects.create(**distance_data)
-
-            return HttpResponse(status=201)
-
-        except ValidationError:
-            return HttpResponse(status=400)
+        serializer = DistanceSerializer(data=json.loads(request.body))
+        serializer.is_valid(raise_exception=True)
+        distance_data = serializer.validated_data
+        Distance.objects.create(**distance_data)
+        return Response(status=201)

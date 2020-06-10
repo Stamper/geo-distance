@@ -1,5 +1,5 @@
 Django==2.2
 geopy==1.22
 psycopg2==2.8.5
-marshmallow==3.6.1
-model-mommy==2.0.0
+django-rest-framework==0.1.0
+django-cors-headers==3.3.0
